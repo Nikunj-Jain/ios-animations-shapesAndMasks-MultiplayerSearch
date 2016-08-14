@@ -88,5 +88,35 @@ class AvatarView: UIView {
     //Size the label
     label.frame = CGRect(x: 0.0, y: bounds.size.height + 10.0, width: bounds.size.width, height: 24.0)
   }
+    
+    func bounceOffPoint(bouncePoint: CGPoint, morphSize: CGSize) {
+        let originalCenter = center
+        
+        UIView.animateWithDuration(animationDuration, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.0, options: [], animations: { 
+            self.center = bouncePoint
+            }) {_ in
+                
+        }
+        UIView.animateWithDuration(animationDuration, delay: animationDuration, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.0, options: [], animations: { 
+            self.center = originalCenter
+            }, completion: {_ in
+                delay(seconds: 0.1, completion: {
+                    self.bounceOffPoint(bouncePoint, morphSize: morphSize)
+                })
+            }
+        )
+        
+        let morphedFrame = (originalCenter.x > bouncePoint.x) ?
+        CGRect(x: 0.0, y: bounds.height - morphSize.height, width: morphSize.width, height: morphSize.height) :
+        CGRect(x: bounds.width - morphSize.width, y: bounds.height - morphSize.height, width: morphSize.width, height: morphSize.height)
+        
+        let morphAnimation = CABasicAnimation(keyPath: "path")
+        morphAnimation.duration = animationDuration
+        morphAnimation.toValue = UIBezierPath(ovalInRect: morphedFrame).CGPath
+        morphAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
+        
+        circleLayer.addAnimation(morphAnimation, forKey: nil)
+        maskLayer.addAnimation(morphAnimation, forKey: nil)
+    }
   
 }
