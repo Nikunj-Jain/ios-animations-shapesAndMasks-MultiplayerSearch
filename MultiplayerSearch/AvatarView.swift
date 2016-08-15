@@ -58,7 +58,9 @@ class AvatarView: UIView {
   }
   
   var shouldTransitionToFinishedState = false
-  
+  var isSquare = false
+    
+    
   override func didMoveToWindow() {
     layer.addSublayer(photoLayer)
     photoLayer.mask = maskLayer
@@ -101,7 +103,12 @@ class AvatarView: UIView {
             self.center = originalCenter
             }, completion: {_ in
                 delay(seconds: 0.1, completion: {
-                    self.bounceOffPoint(bouncePoint, morphSize: morphSize)
+                    if self.shouldTransitionToFinishedState {
+                        self.animateToSquare()
+                    } else {
+                        self.bounceOffPoint(bouncePoint, morphSize: morphSize)
+                    }
+                    
                 })
             }
         )
@@ -117,6 +124,19 @@ class AvatarView: UIView {
         
         circleLayer.addAnimation(morphAnimation, forKey: nil)
         maskLayer.addAnimation(morphAnimation, forKey: nil)
+    }
+    
+    func animateToSquare() {
+        isSquare = true
+        let squarePath = UIBezierPath(rect: bounds).CGPath
+        let squareAnim = CABasicAnimation(keyPath: "path")
+        squareAnim.duration = 1.0
+        squareAnim.fromValue = circleLayer.path
+        squareAnim.toValue = squarePath
+        circleLayer.addAnimation(squareAnim, forKey: nil)
+        circleLayer.path = squarePath
+        maskLayer.addAnimation(squareAnim, forKey: nil)
+        maskLayer.path = squarePath
     }
   
 }
